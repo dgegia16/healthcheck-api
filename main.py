@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import psutil
+import httpx
 
 app = FastAPI()
 
@@ -22,12 +23,21 @@ def health():
     else:
         status = "healthy"
 
-
-
-
     return {
         "status": status,
         "cpu_percent": cpu,
         "virtual_memory": memory,
         "disk_usage": disk
+    }
+
+@app.get("/health/services")
+def check_services():
+    url = "https://httpbin.org/status/200"
+    response = httpx.get(url)
+
+
+    return {
+        "url": url,
+        "status_code": response.status_code,
+        "alive": response.status_code < 400
     }
