@@ -61,7 +61,20 @@ def check_services():
         
     return response
 
+@app.get("/health/live")
+def liveness():
+    
+    return {"status": "alive"}
 
 
 
+@app.get("/health/ready")
+def readiness():
 
+    cpu = psutil.cpu_percent()
+    memory = psutil.virtual_memory().percent
+    disk = psutil.disk_usage("/").percent
+
+    if cpu > 90 or memory > 90 or disk > 90:
+        return {"status": "not ready"}
+    return {"status": "ready"}
