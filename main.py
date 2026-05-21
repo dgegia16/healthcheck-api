@@ -32,12 +32,31 @@ def health():
 
 @app.get("/health/services")
 def check_services():
-    url = "https://httpbin.org/status/200"
-    response = httpx.get(url)
+
+    urls = ["https://httpbin.org/status/200", "https://httpbin.org/status/500", "https://jsonplaceholder.typicode.com/posts/1"]
+    response = []
+
+    for url in urls:
+        try:
+            result = httpx.get(url, timeout=5)
+            response.append({
+                "url": url,
+                "status_code": result.status_code,
+                "alive": result.status_code < 400
+            })
+        except Exception:
+            response.append({
+                "url": url,
+                "status_code": None,
+                "alive": False,
+                "error": "Could not connect"
+            })
 
 
-    return {
-        "url": url,
-        "status_code": response.status_code,
-        "alive": response.status_code < 400
-    }
+        
+    return response
+
+
+
+
+
