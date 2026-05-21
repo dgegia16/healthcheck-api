@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import psutil
 import httpx
+import time
 
 app = FastAPI()
 
@@ -38,18 +39,22 @@ def check_services():
 
     for url in urls:
         try:
+            start = time.time()
             result = httpx.get(url, timeout=5)
+            elapsed = round((time.time() - start) * 1000)
             response.append({
                 "url": url,
                 "status_code": result.status_code,
-                "alive": result.status_code < 400
+                "alive": result.status_code < 400,
+                "required_time_ms": elapsed
             })
         except Exception:
             response.append({
                 "url": url,
                 "status_code": None,
                 "alive": False,
-                "error": "Could not connect"
+                "error": "Could not connect",
+                "required_time_ms": elapsed
             })
 
 
