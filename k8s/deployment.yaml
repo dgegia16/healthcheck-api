@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcheck-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: healthcheck-api
+  template:
+    metadata:
+      labels:
+        app: healthcheck-api
+    spec:
+      containers:
+        - name: healthcheck-api
+          image: docker.io/library/healthcheck-api:latest
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 8000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
