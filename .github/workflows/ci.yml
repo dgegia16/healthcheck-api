@@ -20,3 +20,18 @@ jobs:
                 uvicorn main:app &
                 sleep 2
                 curl -f http://localhost:8000/health
+    docker: 
+        needs: test
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Build Docker image 
+              run: docker build -t healthcheck-api .
+
+            - name: Test container 
+              run: | 
+                docker run -d --name hc-test -p 8000:8000 healthcheck-api
+                sleep 3
+                curl -f http://localhost:8000/health/live
+                docker stop hc-test
